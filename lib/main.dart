@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_application_1/ui/auth/login_screen.dart';
 import 'package:flutter_application_1/ui/auth/signup_screen.dart';
-import 'package:flutter_application_1/ui/splash_screen.dart';
 import 'pages/home.dart';
 import 'pages/login.dart';
 

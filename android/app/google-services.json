@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "808312753773",
+    "project_id": "flutter-nfc-admin",
+    "storage_bucket": "flutter-nfc-admin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808312753773:android:065e11f59d57428db93964",
+        "android_client_info": {
+          "package_name": "com.wittycliques.flutterNFCAdmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808312753773-pngkeovjqvopclshsqg332gnpf62n4f7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYO6NFSqVerTeN96aElsZ7C-tGDKziWBw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808312753773-pngkeovjqvopclshsqg332gnpf62n4f7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
