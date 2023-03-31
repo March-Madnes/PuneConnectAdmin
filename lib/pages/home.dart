@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -15,6 +16,7 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   ValueNotifier<dynamic> result = ValueNotifier(null);
   MobileScannerController cameraController = MobileScannerController();
@@ -34,12 +36,28 @@ class _HomePageState extends State<HomePage>
   // Future<Set<bool>> isAvailable()  async  =>{
   //   await NfcManager.instance.isAvailable()
   // };
+  Future<void> _recordCheck( String message) async{    
+    final uid = auth.currentUser?.uid;
+    var fAadhar = await db.collection("users").doc(uid).get().then((ds){
+      return ds.data()?['adhar'];
+    });
 
+    print(message);
+    print(fAadhar.toString());
+    if(fAadhar.toString() == message){
+      print("verfied");
+
+    }
+    else{
+      print("not verified");
+    }
+  }
+  
   Future<void> _processNfcData(var message) => showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Alert!'),
-          content: Text('NFC Message: ${String.fromCharCodes(message)}'),
+          content: Text('NFC Message: $message'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -75,7 +93,7 @@ class _HomePageState extends State<HomePage>
 
     if (_isAvailable) {
       await NfcManager.instance.startSession(onDiscovered: (tag) async {
-        result.value = tag.data;
+        // result.value = tag.data;
         Ndef? ndef = Ndef.from(tag);
         var message;
         if(ndef?.cachedMessage != null){
@@ -85,8 +103,9 @@ class _HomePageState extends State<HomePage>
           message = await ndef?.read();
         }
         // NfcManager.instance.stopSession();
-        _processNfcData(message);        
-        print("NFC Data: ${String.fromCharCodes(message)}");
+        String code = String.fromCharCodes(message);
+        _processNfcData(code);
+        _recordCheck(code);
       });
     } else {
       await _NfcNotAvailable();
@@ -186,6 +205,7 @@ class _HomePageState extends State<HomePage>
             builder: (context) =>
                 FoundCodeScreen(screenClosed: _screenWasClosed, value: code),
           ));
+      _recordCheck(code);
     }
   }
 
