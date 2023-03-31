@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage>
   MobileScannerController cameraController = MobileScannerController();
   bool _screenOpened = false;
   bool _isAvailable = false;
+  bool _verified = false;
+  dynamic docRef;
 
   Future<PermissionStatus> _getCameraPermission() async {
     var status = await Permission.camera.status;
@@ -36,28 +38,33 @@ class _HomePageState extends State<HomePage>
   // Future<Set<bool>> isAvailable()  async  =>{
   //   await NfcManager.instance.isAvailable()
   // };
-  Future<void> _recordCheck( String message) async{    
-    final uid = auth.currentUser?.uid;
-    var fAadhar = await db.collection("users").doc(uid).get().then((ds){
-      return ds.data()?['adhar'];
+  void _recordCheck( String message){  
+    setState(() {
+          docRef = db.collection('issued_passes').doc(message);
+        });
+    docRef.get().then((doc) {
+      if (doc.exists) {
+        print("Document exists!");     
+        setState(() {          
+        _verified = true;
+        });
+        print(_verified);
+      } else {
+        print("Document does not exist.");
+        setState(() {          
+        _verified = false;
+        });
+      }
+    }).catchError((error) {
+      print("Error getting document: $error");
     });
-
-    print(message);
-    print(fAadhar.toString());
-    if(fAadhar.toString() == message){
-      print("verfied");
-
-    }
-    else{
-      print("not verified");
-    }
   }
-  
+
   Future<void> _processNfcData(var message) => showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Alert!'),
-          content: Text('NFC Message: $message'),
+          content: Text('verified: $_verified'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -103,9 +110,9 @@ class _HomePageState extends State<HomePage>
           message = await ndef?.read();
         }
         // NfcManager.instance.stopSession();
-        String code = String.fromCharCodes(message);
+        String code = String.fromCharCodes(message);        
+        _recordCheck(code); 
         _processNfcData(code);
-        _recordCheck(code);
       });
     } else {
       await _NfcNotAvailable();
@@ -196,16 +203,25 @@ class _HomePageState extends State<HomePage>
   void _foundBarcode(Barcode barcode, MobileScannerArguments? args) {
     /// open screen
     if (!_screenOpened) {
-      final String code = barcode.rawValue ?? "---";
-      debugPrint('Barcode found! $code');
-      _screenOpened = true;
+      final String code = barcode.rawValue ?? "---";      
+      try{
+        _recordCheck(code);
+      }
+      catch(e){
+        print(e);
+        _recordCheck("error");
+      }
       Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                FoundCodeScreen(screenClosed: _screenWasClosed, value: code),
-          ));
-      _recordCheck(code);
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              FoundCodeScreen(
+                screenClosed: _screenWasClosed, 
+                value: "Pass Validation Status : ${_verified? "Valid" : "Invalid"}",
+              ),
+        ));          
+        debugPrint('Barcode found! $code');     
+      _screenOpened = true;
     }
   }
 
