@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/signup',
       routes: {
-        '/': (context) => AdminScreen(),
+        '/': (context) => HomePage(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
       },
